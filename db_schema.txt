@@ -1,0 +1,9 @@
+workout:
+1. workout_id
+2. telegram_id
+3. date
+4. workout
+
+users:
+1. telegram_id
+2. sportsman_name
