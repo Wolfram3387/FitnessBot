@@ -1,5 +1,6 @@
-from .help import dp
 from .commands import dp
-from .echo import dp
+from .add_workout import dp
+from .BMI import dp
+from .calories import dp
 
 __all__ = ["dp"]
