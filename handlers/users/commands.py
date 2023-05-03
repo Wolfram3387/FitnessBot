@@ -2,13 +2,12 @@ import os
 import xlsxwriter
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.builtin import \
-    CommandStart, CommandHelp, Command
+from aiogram.dispatcher.filters.builtin import CommandStart, CommandHelp, Command
 
-from loader import dp
-from states import AddingWorkout, CountCalories, CountBMI
-from utils.misc import rate_limit
+from loader import dp, db
 from data.message_texts import *
+from utils.misc import rate_limit
+from states import AddingWorkout, CountCalories, CountBMI
 
 
 @rate_limit(5, 'start')
@@ -16,7 +15,7 @@ from data.message_texts import *
 async def bot_start(message: types.Message, state: FSMContext):
     await state.finish()
     await message.answer(f'Привет, {message.from_user.full_name}!')
-    # TODO db.add_sportsman(id_=message.from_user.id, name=message.from_user.name)
+    db.add_sportsman(id_=message.from_user.id, name=message.from_user.first_name)
 
 
 @rate_limit(5, 'help')
@@ -62,9 +61,9 @@ async def count_bmi(message: types.Message):
 @dp.message_handler(Command('set_name'))
 async def set_name(message: types.Message):
     if not 1 < len(message.text) < 50:
-        return await message.answer('Имя должно быть от 1 до 50 символов')
+        return await message.answer(NAME_IS_INVALID)
     try:
-        # TODO update name in db
+        db.update_name(id_=message.from_user.id, name=message.text)
         await message.answer(NAME_SET_SUCCESS.format(name=message.text))
     except:
         await message.answer(SOMETHING_WENT_WRONG)
@@ -75,9 +74,8 @@ async def set_name(message: types.Message):
 async def to_excel(message: types.Message):
     await message.answer('Собираю данные...')
     workouts = []
-    # TODO workouts = db.get_all_workouts()
-    name = 'qwerty'
-    # TODO name = db.get_name(id_=message.from_user.id)
+    workouts = db.get_all_workouts()
+    name = db.get_name(id_=message.from_user.id)
     path = f'export/{name}.xlsx'
     if os.path.exists(path):
         path = f'export/{message.from_user.id}.xlsx'

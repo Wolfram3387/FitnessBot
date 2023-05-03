@@ -5,9 +5,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-admins = [
-    868136575
-]
+
+DATABASE_PATH = 'data/sportsmen_bot.db'
+
+admins = [868136575, ]
 
 ip = os.getenv("ip")
 

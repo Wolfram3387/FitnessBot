@@ -4,13 +4,14 @@ from aiogram.dispatcher import FSMContext
 from loader import dp
 from states import CountBMI
 from data.message_texts import *
+from keyboards.default.all import cancel, genders
 
 
 @dp.message_handler(state=CountBMI.input_gender)
 async def input_gender(message: types.Message, state: FSMContext):
-    if message.text == '':  # TODO написать текст кнопки ОТМЕНА
+    if message.text == cancel.keyboard[-1][-1].text:
         return await state.finish()
-    if message.text not in []:  # TODO переислить текст кнопок м/ж
+    if message.text not in [btn['text'] for btn in genders.keyboard[-1]]:
         return await message.answer(SELECT_GENDER)
     await CountBMI.next()
     await message.answer(SEND_WEIGHT)
@@ -19,7 +20,7 @@ async def input_gender(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=CountBMI.input_weight)
 async def input_weight(message: types.Message, state: FSMContext):
-    if message.text == '':  # TODO написать текст кнопки ОТМЕНА
+    if message.text == cancel.keyboard[-1][-1].text:
         return await state.finish()
     if not message.text.isdigit():
         return await message.answer('Введите число')
@@ -32,7 +33,7 @@ async def input_weight(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=CountBMI.input_height)
 async def input_height(message: types.Message, state: FSMContext):
-    if message.text == '':  # TODO написать текст кнопки ОТМЕНА
+    if message.text == cancel.keyboard[-1][-1].text:
         return await state.finish()
     if not message.text.isdigit():
         return await message.answer('Введите число')
@@ -43,7 +44,7 @@ async def input_height(message: types.Message, state: FSMContext):
     height = int(message.text)
     bmi = round(weight / (height ** 2), 2)
     await state.finish()
-    if gender == '':  # TODO написать текст кнопки МУЖСКОЙ
+    if gender == genders.keyboard[-1][0]['text']:
         await message.answer_document(open('data/BMI_male.webp'))
     else:
         await message.answer_document(open('data/BMI_female.webp'))

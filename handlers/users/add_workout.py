@@ -2,14 +2,15 @@ import re
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from loader import dp
+from loader import dp, db
 from data.message_texts import *
 from states import AddingWorkout
+from keyboards.default.all import cancel
 
 
 @dp.message_handler(state=AddingWorkout.input_date)
 async def input_date(message: types.Message, state: FSMContext):
-    if message.text == '':  # TODO написать текст кнопки ОТМЕНА
+    if message.text == cancel.keyboard[-1][-1].text:
         return await state.finish()
     if not re.match(
             (r'^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)('
@@ -27,12 +28,11 @@ async def input_date(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=AddingWorkout.input_workout)
 async def input_workout(message: types.Message, state: FSMContext):
-    if message.text == '':  # TODO написать текст кнопки ОТМЕНА
+    if message.text == cancel.keyboard[-1][-1].text:
         return await state.finish()
     try:
         date = await state.get_data('date')
-        # db.add_workout(id_=message.from_user.id, workout=message.text, date=date)
-        # TODO сохранить тренировку в бд
+        db.add_workout(id_=message.from_user.id, workout=message.text, date=date)
     except:
         return await message.answer(SOMETHING_WENT_WRONG)
     await message.answer(WORKOUT_SUCCESS)
