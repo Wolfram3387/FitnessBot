@@ -31,7 +31,8 @@ async def input_workout(message: types.Message, state: FSMContext):
     if message.text == cancel.keyboard[-1][-1].text:
         return await state.finish()
     try:
-        date = await state.get_data('date')
+        data = await state.get_data()
+        date = data.get('date')
         db.add_workout(id_=message.from_user.id, workout=message.text, date=date)
     except:
         return await message.answer(SOMETHING_WENT_WRONG)

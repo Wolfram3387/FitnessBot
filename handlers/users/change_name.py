@@ -15,7 +15,8 @@ async def input_name(message: types.Message, state: FSMContext):
         return await message.answer(NAME_IS_INVALID)
     try:
         db.update_name(id_=message.from_user.id, name=message.text)
+        await message.answer(NAME_SET_SUCCESS.format(name=message.text),
+                             reply_markup=types.ReplyKeyboardRemove())
         await state.finish()
-        await message.answer(NAME_SET_SUCCESS.format(name=message.text))
     except:
         await message.answer(SOMETHING_WENT_WRONG)

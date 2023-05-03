@@ -15,7 +15,7 @@ from states import AddingWorkout, CountCalories, CountBMI, SetName
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message, state: FSMContext):
     await state.finish()
-    await message.answer(f'Привет, {message.from_user.full_name}!')
+    await message.answer(f'Привет, {message.from_user.first_name}!')
     db.add_sportsman(id_=message.from_user.id, name=message.from_user.first_name)
 
 

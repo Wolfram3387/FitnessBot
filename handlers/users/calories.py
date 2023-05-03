@@ -14,46 +14,52 @@ async def input_gender(message: types.Message, state: FSMContext):
     if message.text not in [btn['text'] for btn in genders.keyboard[-1]]:
         return await message.answer(SELECT_GENDER)
     await CountCalories.next()
-    await message.answer(SEND_WEIGHT)
+    await message.answer(SEND_WEIGHT, reply_markup=cancel)
     await state.update_data(gender=message.text)
 
 
 @dp.message_handler(state=CountCalories.input_weight)
 async def input_weight(message: types.Message, state: FSMContext):
     if message.text == cancel.keyboard[-1][-1].text:
-        return await state.finish()
+        await message.answer(CANCELED, reply_markup=types.ReplyKeyboardRemove())
+        await state.finish()
+        return None
     if not message.text.isdigit():
         return await message.answer('Введите число')
     if not 1 < int(message.text) < 700:
         return await message.answer('Введите реальное значение')
     await CountCalories.next()
-    await message.answer(SEND_HEIGHT)
+    await message.answer(SEND_HEIGHT, reply_markup=cancel)
     await state.update_data(weight=int(message.text))
 
 
 @dp.message_handler(state=CountCalories.input_height)
 async def input_height(message: types.Message, state: FSMContext):
     if message.text == cancel.keyboard[-1][-1].text:
-        return await state.finish()
+        await message.answer(CANCELED, reply_markup=types.ReplyKeyboardRemove())
+        await state.finish()
+        return None
     if not message.text.isdigit():
         return await message.answer('Введите число')
     if not 1 < int(message.text) < 250:
         return await message.answer('Введите реальное значение')
     await CountCalories.next()
-    await message.answer(SEND_AGE)
+    await message.answer(SEND_AGE, reply_markup=cancel)
     await state.update_data(height=int(message.text))
 
 
 @dp.message_handler(state=CountCalories.input_age)
 async def input_age(message: types.Message, state: FSMContext):
     if message.text == cancel.keyboard[-1][-1].text:
-        return await state.finish()
+        await message.answer(CANCELED, reply_markup=types.ReplyKeyboardRemove())
+        await state.finish()
+        return None
     if not message.text.isdigit():
         return await message.answer('Введите число')
     if not 1 < int(message.text) < 120:
         return await message.answer('Введите реальное значение')
     await CountCalories.next()
-    await message.answer(SELECT_ACTIVITY_DEGREE)
+    await message.answer(SELECT_ACTIVITY_DEGREE, reply_markup=activity_degrees)
     await state.update_data(age=int(message.text))
 
 
@@ -80,15 +86,18 @@ async def input_activity_degree(message: types.Message, state: FSMContext):
 
     # Проверяем ввод
     if message.text == cancel.keyboard[-1][-1].text:
-        return await state.finish()
+        await message.answer(CANCELED, reply_markup=types.ReplyKeyboardRemove())
+        await state.finish()
+        return None
     if message.text not in [btn[0]['text'] for btn in activity_degrees.keyboard]:
         return await message.answer(SELECT_ACTIVITY_DEGREE)
 
     # Получаем введённые данные
-    gender = await state.get_data('gender')
-    weight = await state.get_data('weight')
-    height = await state.get_data('height')
-    age = await state.get_data('age')
+    data = await state.get_data()
+    gender = data.get('gender')
+    weight = data.get('weight')
+    height = data.get('height')
+    age = data.get('age')
     activity_degree = message.text
 
     # Считаем суточную норму калорий
@@ -98,6 +107,6 @@ async def input_activity_degree(message: types.Message, state: FSMContext):
     await state.finish()
     five_percents = round(daily_calories * 0.05)
     await message.answer(CALORIES_RESULT.format(
-        start=daily_calories-five_percents,
-        end=daily_calories+five_percents)
+        start=round(daily_calories-five_percents),
+        end=round(daily_calories+five_percents)), reply_markup=types.ReplyKeyboardRemove()
     )
