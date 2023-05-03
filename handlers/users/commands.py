@@ -7,7 +7,8 @@ from aiogram.dispatcher.filters.builtin import CommandStart, CommandHelp, Comman
 from loader import dp, db
 from data.message_texts import *
 from utils.misc import rate_limit
-from states import AddingWorkout, CountCalories, CountBMI
+from keyboards.default.all import *
+from states import AddingWorkout, CountCalories, CountBMI, SetName
 
 
 @rate_limit(5, 'start')
@@ -46,7 +47,7 @@ async def add_workout(message: types.Message):
 async def count_calories(message: types.Message):
     await CountCalories.input_gender.set()
     await message.answer(ABOUT_CALORIES)
-    await message.answer(SELECT_GENDER)
+    await message.answer(SELECT_GENDER, reply_markup=genders)
 
 
 @rate_limit(5, 'bmi')
@@ -54,26 +55,20 @@ async def count_calories(message: types.Message):
 async def count_bmi(message: types.Message):
     await CountBMI.input_gender.set()
     await message.answer(ABOUT_BMI)
-    await message.answer(SELECT_GENDER)
+    await message.answer(SELECT_GENDER, reply_markup=genders)
 
 
 @rate_limit(5, 'set_name')
 @dp.message_handler(Command('set_name'))
 async def set_name(message: types.Message):
-    if not 1 < len(message.text) < 50:
-        return await message.answer(NAME_IS_INVALID)
-    try:
-        db.update_name(id_=message.from_user.id, name=message.text)
-        await message.answer(NAME_SET_SUCCESS.format(name=message.text))
-    except:
-        await message.answer(SOMETHING_WENT_WRONG)
+    await SetName.set_name.set()
+    await message.answer(SEND_NAME, reply_markup=cancel)
 
 
 @rate_limit(5, 'export')
 @dp.message_handler(Command('export'))
 async def to_excel(message: types.Message):
     await message.answer('Собираю данные...')
-    workouts = []
     workouts = db.get_all_workouts()
     name = db.get_name(id_=message.from_user.id)
     path = f'export/{name}.xlsx'
