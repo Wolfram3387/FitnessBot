@@ -69,7 +69,7 @@ async def set_name(message: types.Message):
 @dp.message_handler(Command('export'))
 async def to_excel(message: types.Message):
     await message.answer('Собираю данные...')
-    workouts = db.get_all_workouts()
+    workouts = db.get_all_workouts(id_=message.from_user.id)
     name = db.get_name(id_=message.from_user.id)
     path = f'export/{name}.xlsx'
     if os.path.exists(path):
@@ -81,11 +81,11 @@ async def to_excel(message: types.Message):
         worksheet.write(0, 1, 'Тренировка')
 
         for row_number, item in enumerate(workouts, start=1):
-            worksheet.write(row_number, 0, item[2])
+            worksheet.write(row_number, 0, item[0])
             worksheet.write(row_number, 1, item[1])
 
     await message.answer_document(
-        document=open(path),
+        document=open(path, 'rb'),
         caption=f'{name}, вот все твои тренировки'
     )
     os.remove(path)

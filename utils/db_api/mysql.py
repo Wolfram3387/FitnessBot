@@ -39,7 +39,6 @@ class MySqlDatabase:
         cursor.execute(query, params)
         result = cursor.fetchall()
         cursor.close()
-        # TODO date преобразовать в datetime (наверно)
         return result
 
     def get_name(self, id_):
@@ -53,7 +52,6 @@ class MySqlDatabase:
 
     def add_workout(self, id_, workout, date):
         cursor = self.connection.cursor()
-        # TODO date наверно нужно преобразовать в строку
         query = "INSERT INTO workout (telegram_id, date, workout) VALUES (?, ?, ?)"
         params = (id_, date, workout)
         cursor.execute(query, params)
